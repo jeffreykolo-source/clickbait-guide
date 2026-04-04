@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clickbait Guide</title>
+    <title>Clickbait Guide: Interactive</title>
     <style>
         :root {
             --bg-dark: #121212;
@@ -18,88 +18,46 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-dark); 
             color: var(--text-main); 
-            margin: 0; 
-            padding: 0;
-            overflow: hidden; /* Clean app-like feel */
+            margin: 0; padding: 0;
+            overflow: hidden; 
         }
 
-        #slider-container { 
-            position: relative; 
-            width: 100vw; 
-            height: 100vh; 
-            background: #000;
-        }
+        #slider-container { position: relative; width: 100vw; height: 100vh; background: #000; }
 
         .slide {
-            position: absolute; 
-            top: 0; left: 0;
-            width: 100%; 
-            height: 100%;
-            opacity: 0; 
-            visibility: hidden; 
-            transition: opacity 0.5s ease-in-out;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .slide.active { opacity: 1; visibility: visible; }
 
-        /* --- THE CONTENT ENGINE --- */
         .content-layer { 
-            display: flex; 
-            width: 90%; 
-            max-width: 1000px; 
-            gap: 50px; 
-            align-items: flex-start; /* Aligns Title top with Image top */
-            position: relative;
+            display: flex; width: 90%; max-width: 1000px; gap: 50px; 
+            align-items: flex-start; position: relative;
         }
 
         .layout-img-left { flex-direction: row; }
         .layout-img-right { flex-direction: row-reverse; }
 
-        /* HERO SLIDE (Centered) */
         .layout-hero { background-size: cover; background-position: center; }
         .hero-content { 
-            text-align: center; 
-            background: rgba(0,0,0,0.85); 
-            padding: 60px; 
-            border-radius: 15px; 
-            border: 2px solid var(--accent-orange);
-            max-width: 750px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center; background: rgba(0,0,0,0.85); 
+            padding: 60px; border-radius: 15px; border: 2px solid var(--accent-orange);
+            max-width: 750px; margin: 0 auto;
         }
 
-        /* --- IMAGE (Fixed 300x450) --- */
         .image-side { 
-            width: 300px; 
-            height: 450px; 
-            flex: 0 0 300px;
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #444;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 300px; height: 450px; flex: 0 0 300px;
+            border-radius: 12px; overflow: hidden; border: 1px solid #444;
         }
-        .img-fill { 
-            width: 100%; 
-            height: 100%; 
-            background-size: cover; 
-            background-position: center; 
-        }
+        .img-fill { width: 100%; height: 100%; background-size: cover; background-position: center; }
 
-        /* --- TEXT SIDE --- */
-        .text-side { 
-            flex: 1; 
-            height: 450px; /* Symmetry with image */
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; 
-        }
+        .text-side { flex: 1; height: 450px; display: flex; flex-direction: column; justify-content: flex-start; }
 
         h2 { font-size: 2.5rem; color: var(--accent-orange); margin: 0 0 15px 0; line-height: 1.1; }
         .body-p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px; }
 
-        /* --- FLIP BOX --- */
         .flip-container { perspective: 1000px; cursor: pointer; height: 150px; margin-top: auto; }
         .flip-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .flip-card.revealed { transform: rotateY(180deg); }
@@ -111,94 +69,61 @@
         .flip-front { background: var(--red-bait); color: #f8d7da; border: 1px solid #f5c6cb; }
         .flip-back { background: var(--green-real); color: #d4edda; border: 1px solid #c3e6cb; transform: rotateY(180deg); }
 
-        /* --- BUTTON (Fixed Bottom Right) --- */
         .next-btn {
-            position: absolute;
-            bottom: -80px; /* Distance below the 450px content height */
-            right: 0; 
-            padding: 14px 45px; 
-            background: var(--accent-orange); 
-            border: none; 
-            border-radius: 8px; 
-            color: #000; 
-            font-weight: bold; 
-            cursor: pointer;
-            transition: transform 0.2s;
+            position: absolute; bottom: -80px; right: 0; 
+            padding: 14px 45px; background: var(--accent-orange); 
+            border: none; border-radius: 8px; color: #000; 
+            font-weight: bold; cursor: pointer;
         }
-        .next-btn:hover { background: #ffb742; transform: translateY(-2px); }
 
-        /* --- MOBILE REWRITE (Fixed Width Issues) --- */
         @media (max-width: 600px) {
             body { overflow-y: auto; }
             #slider-container { height: auto; min-height: 100vh; }
             .slide { position: relative; height: auto; padding: 40px 0 100px 0; }
-            
-            .content-layer { 
-                flex-direction: column !important; 
-                align-items: center; 
-                width: 85%; /* Narrower width for mobile */
-                gap: 25px; 
-            }
-
-            .image-side { 
-                width: 280px; 
-                height: 420px; 
-                flex: none; 
-            }
-
-            .text-side { 
-                width: 100%; 
-                height: auto; 
-                text-align: center; 
-            }
-
-            h2 { font-size: 1.8rem; }
-            
-            .next-btn { 
-                position: relative; 
-                bottom: 0; 
-                right: auto; 
-                margin: 30px auto 0 auto;
-            }
+            .content-layer { flex-direction: column !important; align-items: center; width: 85%; gap: 25px; }
+            .image-side { width: 280px; height: 420px; flex: none; }
+            .text-side { width: 100%; height: auto; text-align: center; }
+            .next-btn { position: relative; bottom: 0; margin: 30px auto 0 auto; }
         }
     </style>
 </head>
 <body>
 
-<div id="slider-container"></div>
+<div id="slider-container">
+    <div style="color: white; text-align: center; padding-top: 50px;">Loading Lesson Data...</div>
+</div>
 
 <script>
-// Replace this array with your actual data from the spreadsheetconst SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?gid=0&single=true&output=csv';
+const spreadsheetUrl = 'YOUR_CSV_URL_HERE'; 
 
-let currentIndex = 0;
+let currentSlide = 0;
+let masterData = [];
 
-async function loadData() {
+async function init() {
     try {
-        const response = await fetch(SHEET_URL);
+        const response = await fetch(spreadsheetUrl);
         const csvText = await response.text();
-        
-        // Improved CSV parsing to handle quotes and commas inside text
-        const rows = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
-        
-        const slideData = rows.slice(1).map(row => {
-            // Regex to split by comma but ignore commas inside double quotes
-            const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const clean = (val) => (val || "").replace(/^"|"$/g, '').replace(/""/g, '"').trim();
-            
-            return { 
-                title: clean(p[0]), 
-                desc: clean(p[1]), 
-                img: clean(p[2]), 
-                layout: clean(p[3]),
-                bait: clean(p[4]), 
-                real: clean(p[5]) 
-            };
-        });
-
-        render(slideData);
-    } catch (e) { console.error("Error loading CSV:", e); }
+        masterData = parseCSV(csvText);
+        render(masterData);
+    } catch (error) {
+        console.error("Error loading spreadsheet:", error);
+        document.getElementById('slider-container').innerHTML = `<div style="color:red; padding:20px;">Failed to load data. Please check your spreadsheet's 'Publish to Web' settings.</div>`;
+    }
 }
 
+function parseCSV(text) {
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+        let obj = {};
+        headers.forEach((header, i) => {
+            obj[header] = values[i] || '';
+        });
+        return obj;
+    });
+}
 
 function render(data) {
     const container = document.getElementById('slider-container');
@@ -206,15 +131,16 @@ function render(data) {
     
     data.forEach((item, i) => {
         const slide = document.createElement('div');
-        slide.className = `slide ${item.layout === 'hero' ? 'layout-hero' : 'layout-img-left'}`;
+        const isHero = i === 0 || (item.layout && item.layout.toLowerCase() === 'hero');
+        slide.className = `slide ${isHero ? 'layout-hero' : 'layout-img-left'}`;
         
-        if (i === 0) {
+        if (isHero) {
             slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.img}')`;
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="hero-content">
                         <h1>${item.title}</h1>
-                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.bait}"</p>
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.bait || ''}"</p>
                     </div>
                     <button class="next-btn" onclick="nextSlide()">Start Guide</button>
                 </div>`;
@@ -227,6 +153,7 @@ function render(data) {
                     <div class="text-side">
                         <h2>${item.title}</h2>
                         <p class="body-p">${item.desc}</p>
+                        ${item.real ? `
                         <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
                             <div class="flip-card">
                                 <div class="flip-front">
@@ -239,9 +166,11 @@ function render(data) {
                                     ${item.real}
                                 </div>
                             </div>
-                        </div>
+                        </div>` : ''}
                     </div>
-                    <button class="next-btn" onclick="nextSlide()">Next</button>
+                    <button class="next-btn" onclick="nextSlide()">
+                        ${i === data.length - 1 ? 'Restart Guide' : 'Next'}
+                    </button>
                 </div>`;
         }
         container.appendChild(slide);
@@ -251,6 +180,7 @@ function render(data) {
 
 function showSlide(index) {
     const slides = document.querySelectorAll('.slide');
+    if (slides.length === 0) return;
     slides.forEach(s => s.classList.remove('active'));
     slides[index].classList.add('active');
 }
@@ -261,8 +191,7 @@ function nextSlide() {
     showSlide(currentSlide);
 }
 
-// Initialize
-render(data);
+init();
 </script>
 </body>
 </html>

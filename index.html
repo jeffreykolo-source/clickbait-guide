@@ -129,28 +129,35 @@ function render(data) {
     const container = document.getElementById('slider-container');
     container.innerHTML = '';
     
+    // DEBUG: This will show you exactly what headers your code sees.
+    // Open your browser's Console (F12) to see this list.
+    console.log("First Row of Data:", data[0]);
+
     data.forEach((item, i) => {
         const slide = document.createElement('div');
         
-        // 1. Check if it's the Hero slide based on your 'layout' column
-        const isHero = i === 0 || (item.layout && item.layout.toLowerCase() === 'hero');
+        // Match your spreadsheet 'layout' column or default to hero for first slide
+        const layoutType = item.layout ? item.layout.toLowerCase() : '';
+        const isHero = i === 0 || layoutType === 'hero';
+        
         slide.className = `slide ${isHero ? 'layout-hero' : 'layout-img-left'}`;
         
         if (isHero) {
-            // Mapping: 'image_url' and 'caption'
+            // Slide 1 Layout: Uses Caption and Quote as sub-text
             slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.image_url}')`;
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="hero-content">
                         <h1>${item.title}</h1>
-                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">
-                            "${item.caption || ''}"
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic; margin-bottom: 10px;">
+                            ${item.caption || ''}
                         </p>
+                        <p style="font-size: 1.1rem; opacity: 0.9;">${item.quote || ''}</p>
                     </div>
                     <button class="next-btn" onclick="nextSlide()">Start Guide</button>
                 </div>`;
         } else {
-            // Mapping: 'image_url', 'description', 'caption' (bait), and 'quote' (reality)
+            // Technique Slides: If there is ANY text in the 'quote' column, show the Flip Box
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="image-side">
@@ -164,19 +171,19 @@ function render(data) {
                         <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
                             <div class="flip-card">
                                 <div class="flip-front">
-                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Headline</div>
-                                    "${item.caption || ''}"
-                                    <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal;">Click to reveal</div>
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">The Headline</div>
+                                    <div style="padding: 0 10px;">"${item.caption || 'Clickbait Headline'}"</div>
+                                    <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal; opacity: 0.7;">Click to reveal reality</div>
                                 </div>
                                 <div class="flip-back">
-                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Reality</div>
-                                    ${item.quote}
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">The Reality</div>
+                                    <div style="padding: 0 10px;">${item.quote}</div>
                                 </div>
                             </div>
-                        </div>` : ''}
+                        </div>` : '<div style="height:150px;"></div>'} 
                     </div>
                     <button class="next-btn" onclick="nextSlide()">
-                        ${i === data.length - 1 ? 'Restart Guide' : 'Next'}
+                        ${i === data.length - 1 ? 'Restart Guide' : 'Continue'}
                     </button>
                 </div>`;
         }
@@ -184,6 +191,7 @@ function render(data) {
     });
     showSlide(0);
 }
+    
 function showSlide(index) {
     const slides = document.querySelectorAll('.slide');
     if (slides.length === 0) return;

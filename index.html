@@ -127,37 +127,73 @@
 </div>
 
 <script>
+// 1. MUST BE THE "PUBLISHED TO WEB" CSV LINK
+// It should look like: https://docs.google.com/spreadsheets/d/e/.../pub?output=csv
 const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?gid=0&single=true&output=csv'; // Replace with your published CSV link
 
 let currentSlide = 0;
 
 async function init() {
+    const container = document.getElementById('slider-container');
+    console.log("Attempting to fetch data from:", spreadsheetUrl);
+
+    // Timeout safety: If it takes more than 5 seconds, show a manual error
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     try {
-        const response = await fetch(spreadsheetUrl);
+        const response = await fetch(spreadsheetUrl, { signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
         const csvText = await response.text();
+        clearTimeout(timeoutId);
+
+        console.log("CSV Data Received. Length:", csvText.length);
         const masterData = parseCSV(csvText);
-        render(masterData);
-    } catch (e) { console.error(e); }
+        
+        if (masterData.length > 0) {
+            render(masterData);
+        } else {
+            throw new Error("CSV parsed but no rows found.");
+        }
+
+    } catch (e) {
+        console.error("Initialization Error:", e);
+        container.innerHTML = `
+            <div style="color: white; text-align: center; padding: 50px; font-family: sans-serif;">
+                <h2 style="color: #ff9d00;">Connection Issue</h2>
+                <p>Could not load the spreadsheet. Please check:</p>
+                <ul style="display: inline-block; text-align: left; line-height: 1.6;">
+                    <li>Is the Google Sheet <b>Published to Web</b> as a <b>CSV</b>?</li>
+                    <li>Is the URL in the code correct?</li>
+                    <li>Are you connected to the internet?</li>
+                </ul>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 20px;">Error Details: ${e.message}</p>
+            </div>`;
+    }
 }
 
 function parseCSV(text) {
-    const lines = text.split('\n').filter(l => l.trim() !== '');
+    // Splits lines and handles potential Windows/Mac line ending differences
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
     const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
     
-    return lines.slice(1).map(line => {
+    console.log("Detected Headers:", rawHeaders);
+
+    return lines.slice(1).map((line, index) => {
+        // Advanced regex to handle commas inside quotes
         const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         let obj = {};
+        
         rawHeaders.forEach((header, i) => {
-            // Logic to handle "Caption (Bait)" or "Quote (Reality)" or "Description "
-            let key = header;
-            if (header.includes('title')) key = 'title';
-            else if (header.includes('description')) key = 'description';
-            else if (header.includes('image_url')) key = 'image_url';
-            else if (header.includes('layout')) key = 'layout';
-            else if (header.includes('caption')) key = 'caption';
-            else if (header.includes('quote')) key = 'quote';
-            
-            obj[key] = values[i] || '';
+            let val = values[i] || '';
+            // Robust mapping: looks for keywords regardless of the full column name
+            if (header.includes('title')) obj['title'] = val;
+            if (header.includes('description')) obj['description'] = val;
+            if (header.includes('image_url')) obj['image_url'] = val;
+            if (header.includes('layout')) obj['layout'] = val;
+            if (header.includes('caption')) obj['caption'] = val;
+            if (header.includes('quote')) obj['quote'] = val;
         });
         return obj;
     });
@@ -169,10 +205,10 @@ function render(data) {
     
     data.forEach((item, i) => {
         const slide = document.createElement('div');
-        const isHero = i === 0 || (item.layout && item.layout == '1') || (item.layout && item.layout.toLowerCase() === 'hero');
-        
-        // Handle Layout types from your sheet (1, 2, or empty)
+        // Layout check: Is it the first slide, or marked 'hero' or '1'?
+        const isHero = i === 0 || (item.layout && (item.layout.toLowerCase() === 'hero' || item.layout == '1'));
         const isImgRight = (item.layout == '2');
+
         slide.className = `slide ${isHero ? 'layout-hero' : (isImgRight ? 'layout-img-right' : 'layout-img-left')}`;
         
         if (isHero) {
@@ -180,8 +216,10 @@ function render(data) {
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="hero-content">
-                        <h1>${item.title}</h1>
-                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.caption}"</p>
+                        <h1>${item.title || 'Untitled'}</h1>
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">
+                            ${item.caption ? `"${item.caption}"` : ''}
+                        </p>
                         ${item.quote ? `<p style="margin-top:20px; opacity:0.8;">${item.quote}</p>` : ''}
                     </div>
                     <button class="next-btn" onclick="nextSlide()">Start Guide</button>
@@ -193,15 +231,15 @@ function render(data) {
                         <div class="img-fill" style="background-image: url('${item.image_url}')"></div>
                     </div>
                     <div class="text-side">
-                        <h2>${item.title}</h2>
-                        <p class="body-p">${item.description}</p>
+                        <h2>${item.title || 'Untitled'}</h2>
+                        <p class="body-p">${item.description || ''}</p>
                         
                         ${item.quote ? `
                         <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
                             <div class="flip-card">
                                 <div class="flip-front">
                                     <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity:0.7;">The Headline</div>
-                                    "${item.caption}"
+                                    "${item.caption || 'Clickbait Headline'}"
                                     <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal; opacity:0.6;">Click to reveal reality</div>
                                 </div>
                                 <div class="flip-back">
@@ -223,6 +261,7 @@ function render(data) {
 
 function showSlide(index) {
     const slides = document.querySelectorAll('.slide');
+    if (slides.length === 0) return;
     slides.forEach(s => s.classList.remove('active'));
     slides[index].classList.add('active');
 }
@@ -233,6 +272,7 @@ function nextSlide() {
     showSlide(currentSlide);
 }
 
+// Start the process
 init();
 </script>
 </body>

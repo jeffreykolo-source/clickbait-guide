@@ -3,43 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clickbait Guide: Interactive</title>
+    <title>Clickbait Guide</title>
     <style>
         :root {
             --bg-dark: #121212;
-            --card-bg: #1e1e1e;
             --accent-orange: #ff9d00;
             --text-main: #e0e0e0;
             --red-bait: #721c24;
             --green-real: #155724;
         }
 
+        * { box-sizing: border-box; } /* Prevents width issues */
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-dark); 
             color: var(--text-main); 
             margin: 0; padding: 0;
-            overflow: hidden; 
+            overflow-x: hidden; 
         }
 
-        #slider-container { position: relative; width: 100vw; height: 100vh; background: #000; }
+        #slider-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000;
+        }
 
         .slide {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out;
+            position: absolute; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden; 
+            transition: opacity 0.5s ease-in-out;
             display: flex; justify-content: center; align-items: center;
         }
 
         .slide.active { opacity: 1; visibility: visible; }
 
+        /* --- THE CONTENT LAYER --- */
         .content-layer { 
-            display: flex; width: 90%; max-width: 1000px; gap: 50px; 
-            align-items: flex-start; position: relative;
+            display: flex; 
+            width: 90%; 
+            max-width: 1000px; 
+            gap: 50px; 
+            align-items: flex-start; 
+            position: relative;
+            padding-bottom: 100px; /* Space for the button at bottom */
         }
 
         .layout-img-left { flex-direction: row; }
         .layout-img-right { flex-direction: row-reverse; }
 
+        /* HERO SLIDE */
         .layout-hero { background-size: cover; background-position: center; }
         .hero-content { 
             text-align: center; background: rgba(0,0,0,0.85); 
@@ -47,42 +62,60 @@
             max-width: 750px; margin: 0 auto;
         }
 
+        /* --- IMAGE (300x450) --- */
         .image-side { 
             width: 300px; height: 450px; flex: 0 0 300px;
             border-radius: 12px; overflow: hidden; border: 1px solid #444;
         }
         .img-fill { width: 100%; height: 100%; background-size: cover; background-position: center; }
 
-        .text-side { flex: 1; height: 450px; display: flex; flex-direction: column; justify-content: flex-start; }
+        /* --- TEXT SYSTEM --- */
+        .text-side { 
+            flex: 1; 
+            min-height: 450px; 
+            display: flex; flex-direction: column; 
+            justify-content: flex-start; 
+        }
 
-        h2 { font-size: 2.5rem; color: var(--accent-orange); margin: 0 0 15px 0; line-height: 1.1; }
-        .body-p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px; }
+        h2 { font-size: 2.4rem; color: var(--accent-orange); margin: 0 0 15px 0; line-height: 1.1; }
+        .body-p { font-size: 1.15rem; line-height: 1.6; margin-bottom: 20px; }
 
+        /* --- FLIP BOX --- */
         .flip-container { perspective: 1000px; cursor: pointer; height: 150px; margin-top: auto; }
         .flip-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .flip-card.revealed { transform: rotateY(180deg); }
         .flip-front, .flip-back {
             position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 10px; padding: 20px; text-align: center; font-size: 1.15rem; font-weight: bold;
+            border-radius: 10px; padding: 20px; text-align: center; font-size: 1.1rem; font-weight: bold;
         }
         .flip-front { background: var(--red-bait); color: #f8d7da; border: 1px solid #f5c6cb; }
         .flip-back { background: var(--green-real); color: #d4edda; border: 1px solid #c3e6cb; transform: rotateY(180deg); }
 
+        /* --- BUTTON (Fixed Bottom Right) --- */
         .next-btn {
-            position: absolute; bottom: -80px; right: 0; 
-            padding: 14px 45px; background: var(--accent-orange); 
-            border: none; border-radius: 8px; color: #000; 
-            font-weight: bold; cursor: pointer;
+            position: absolute;
+            bottom: 10px; right: 0; 
+            padding: 14px 40px; 
+            background: var(--accent-orange); 
+            border: none; border-radius: 8px; 
+            color: #000; font-weight: bold; cursor: pointer;
         }
 
-        @media (max-width: 600px) {
+        /* --- MOBILE FIX --- */
+        @media (max-width: 700px) {
             body { overflow-y: auto; }
             #slider-container { height: auto; min-height: 100vh; }
             .slide { position: relative; height: auto; padding: 40px 0 100px 0; }
-            .content-layer { flex-direction: column !important; align-items: center; width: 85%; gap: 25px; }
+            .content-layer { 
+                flex-direction: column !important; 
+                align-items: center; 
+                width: 92%; /* Improved mobile width */
+                gap: 25px; 
+                padding-bottom: 80px;
+            }
             .image-side { width: 280px; height: 420px; flex: none; }
-            .text-side { width: 100%; height: auto; text-align: center; }
+            .text-side { width: 100%; min-height: auto; text-align: center; }
             .next-btn { position: relative; bottom: 0; margin: 30px auto 0 auto; }
         }
     </style>
@@ -94,118 +127,19 @@
 </div>
 
 <script>
-const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?gid=0&single=true&output=csv'; 
+const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?gid=0&single=true&output=csv'; // Replace with your published CSV link
 
 let currentSlide = 0;
-let masterData = [];
 
 async function init() {
     try {
         const response = await fetch(spreadsheetUrl);
         const csvText = await response.text();
-        masterData = parseCSV(csvText);
+        const masterData = parseCSV(csvText);
         render(masterData);
-    } catch (error) {
-        console.error("Error loading spreadsheet:", error);
-        document.getElementById('slider-container').innerHTML = `<div style="color:red; padding:20px;">Failed to load data. Please check your spreadsheet's 'Publish to Web' settings.</div>`;
-    }
+    } catch (e) { console.error(e); }
 }
 
 function parseCSV(text) {
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    
-    return lines.slice(1).map(line => {
-        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
-        let obj = {};
-        headers.forEach((header, i) => {
-            obj[header] = values[i] || '';
-        });
-        return obj;
-    });
-}
-
-function render(data) {
-    const container = document.getElementById('slider-container');
-    container.innerHTML = '';
-    
-    // DEBUG: This will show you exactly what headers your code sees.
-    // Open your browser's Console (F12) to see this list.
-    console.log("First Row of Data:", data[0]);
-
-    data.forEach((item, i) => {
-        const slide = document.createElement('div');
-        
-        // Match your spreadsheet 'layout' column or default to hero for first slide
-        const layoutType = item.layout ? item.layout.toLowerCase() : '';
-        const isHero = i === 0 || layoutType === 'hero';
-        
-        slide.className = `slide ${isHero ? 'layout-hero' : 'layout-img-left'}`;
-        
-        if (isHero) {
-            // Slide 1 Layout: Uses Caption and Quote as sub-text
-            slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.image_url}')`;
-            slide.innerHTML = `
-                <div class="content-layer">
-                    <div class="hero-content">
-                        <h1>${item.title}</h1>
-                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic; margin-bottom: 10px;">
-                            ${item.caption || ''}
-                        </p>
-                        <p style="font-size: 1.1rem; opacity: 0.9;">${item.quote || ''}</p>
-                    </div>
-                    <button class="next-btn" onclick="nextSlide()">Start Guide</button>
-                </div>`;
-        } else {
-            // Technique Slides: If there is ANY text in the 'quote' column, show the Flip Box
-            slide.innerHTML = `
-                <div class="content-layer">
-                    <div class="image-side">
-                        <div class="img-fill" style="background-image: url('${item.image_url}')"></div>
-                    </div>
-                    <div class="text-side">
-                        <h2>${item.title}</h2>
-                        <p class="body-p">${item.description || ''}</p>
-                        
-                        ${item.quote ? `
-                        <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
-                            <div class="flip-card">
-                                <div class="flip-front">
-                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">The Headline</div>
-                                    <div style="padding: 0 10px;">"${item.caption || 'Clickbait Headline'}"</div>
-                                    <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal; opacity: 0.7;">Click to reveal reality</div>
-                                </div>
-                                <div class="flip-back">
-                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">The Reality</div>
-                                    <div style="padding: 0 10px;">${item.quote}</div>
-                                </div>
-                            </div>
-                        </div>` : '<div style="height:150px;"></div>'} 
-                    </div>
-                    <button class="next-btn" onclick="nextSlide()">
-                        ${i === data.length - 1 ? 'Restart Guide' : 'Continue'}
-                    </button>
-                </div>`;
-        }
-        container.appendChild(slide);
-    });
-    showSlide(0);
-}
-    
-function showSlide(index) {
-    const slides = document.querySelectorAll('.slide');
-    if (slides.length === 0) return;
-    slides.forEach(s => s.classList.remove('active'));
-    slides[index].classList.add('active');
-}
-
-function nextSlide() {
-    const slides = document.querySelectorAll('.slide');
-    currentSlide = (currentSlide + 1) % slides.length;
-    showSlide(currentSlide);
-}
-
-init();
-</script>
-</body>
-</html>
+    const lines = text.split('\n').filter(l => l.trim() !== '');
+    const rawHeaders = lines[0].

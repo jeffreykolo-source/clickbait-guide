@@ -142,4 +142,98 @@ async function init() {
 
 function parseCSV(text) {
     const lines = text.split('\n').filter(l => l.trim() !== '');
-    const rawHeaders = lines[0].
+    const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+        let obj = {};
+        rawHeaders.forEach((header, i) => {
+            // Logic to handle "Caption (Bait)" or "Quote (Reality)" or "Description "
+            let key = header;
+            if (header.includes('title')) key = 'title';
+            else if (header.includes('description')) key = 'description';
+            else if (header.includes('image_url')) key = 'image_url';
+            else if (header.includes('layout')) key = 'layout';
+            else if (header.includes('caption')) key = 'caption';
+            else if (header.includes('quote')) key = 'quote';
+            
+            obj[key] = values[i] || '';
+        });
+        return obj;
+    });
+}
+
+function render(data) {
+    const container = document.getElementById('slider-container');
+    container.innerHTML = '';
+    
+    data.forEach((item, i) => {
+        const slide = document.createElement('div');
+        const isHero = i === 0 || (item.layout && item.layout == '1') || (item.layout && item.layout.toLowerCase() === 'hero');
+        
+        // Handle Layout types from your sheet (1, 2, or empty)
+        const isImgRight = (item.layout == '2');
+        slide.className = `slide ${isHero ? 'layout-hero' : (isImgRight ? 'layout-img-right' : 'layout-img-left')}`;
+        
+        if (isHero) {
+            slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.image_url}')`;
+            slide.innerHTML = `
+                <div class="content-layer">
+                    <div class="hero-content">
+                        <h1>${item.title}</h1>
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.caption}"</p>
+                        ${item.quote ? `<p style="margin-top:20px; opacity:0.8;">${item.quote}</p>` : ''}
+                    </div>
+                    <button class="next-btn" onclick="nextSlide()">Start Guide</button>
+                </div>`;
+        } else {
+            slide.innerHTML = `
+                <div class="content-layer">
+                    <div class="image-side">
+                        <div class="img-fill" style="background-image: url('${item.image_url}')"></div>
+                    </div>
+                    <div class="text-side">
+                        <h2>${item.title}</h2>
+                        <p class="body-p">${item.description}</p>
+                        
+                        ${item.quote ? `
+                        <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
+                            <div class="flip-card">
+                                <div class="flip-front">
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity:0.7;">The Headline</div>
+                                    "${item.caption}"
+                                    <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal; opacity:0.6;">Click to reveal reality</div>
+                                </div>
+                                <div class="flip-back">
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; opacity:0.7;">The Reality</div>
+                                    ${item.quote}
+                                </div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                    <button class="next-btn" onclick="nextSlide()">
+                        ${i === data.length - 1 ? 'Restart' : 'Continue'}
+                    </button>
+                </div>`;
+        }
+        container.appendChild(slide);
+    });
+    showSlide(0);
+}
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+}
+
+function nextSlide() {
+    const slides = document.querySelectorAll('.slide');
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+}
+
+init();
+</script>
+</body>
+</html>

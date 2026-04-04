@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickbait Guide</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --accent-orange: #ff9d00;
+            --text-main: #e0e0e0;
+            --red-bait: #721c24;
+            --green-real: #155724;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0;
+            overflow: hidden; /* Clean app-like feel */
+        }
+
+        #slider-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000;
+        }
+
+        .slide {
+            position: absolute; 
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            opacity: 0; 
+            visibility: hidden; 
+            transition: opacity 0.5s ease-in-out;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        .slide.active { opacity: 1; visibility: visible; }
+
+        /* --- THE CONTENT ENGINE --- */
+        .content-layer { 
+            display: flex; 
+            width: 90%; 
+            max-width: 1000px; 
+            gap: 50px; 
+            align-items: flex-start; /* Aligns Title top with Image top */
+            position: relative;
+        }
+
+        .layout-img-left { flex-direction: row; }
+        .layout-img-right { flex-direction: row-reverse; }
+
+        /* HERO SLIDE (Centered) */
+        .layout-hero { background-size: cover; background-position: center; }
+        .hero-content { 
+            text-align: center; 
+            background: rgba(0,0,0,0.85); 
+            padding: 60px; 
+            border-radius: 15px; 
+            border: 2px solid var(--accent-orange);
+            max-width: 750px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* --- IMAGE (Fixed 300x450) --- */
+        .image-side { 
+            width: 300px; 
+            height: 450px; 
+            flex: 0 0 300px;
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #444;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .img-fill { 
+            width: 100%; 
+            height: 100%; 
+            background-size: cover; 
+            background-position: center; 
+        }
+
+        /* --- TEXT SIDE --- */
+        .text-side { 
+            flex: 1; 
+            height: 450px; /* Symmetry with image */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+        }
+
+        h2 { font-size: 2.5rem; color: var(--accent-orange); margin: 0 0 15px 0; line-height: 1.1; }
+        .body-p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px; }
+
+        /* --- FLIP BOX --- */
+        .flip-container { perspective: 1000px; cursor: pointer; height: 150px; margin-top: auto; }
+        .flip-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.revealed { transform: rotateY(180deg); }
+        .flip-front, .flip-back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 10px; padding: 20px; text-align: center; font-size: 1.15rem; font-weight: bold;
+        }
+        .flip-front { background: var(--red-bait); color: #f8d7da; border: 1px solid #f5c6cb; }
+        .flip-back { background: var(--green-real); color: #d4edda; border: 1px solid #c3e6cb; transform: rotateY(180deg); }
+
+        /* --- BUTTON (Fixed Bottom Right) --- */
+        .next-btn {
+            position: absolute;
+            bottom: -80px; /* Distance below the 450px content height */
+            right: 0; 
+            padding: 14px 45px; 
+            background: var(--accent-orange); 
+            border: none; 
+            border-radius: 8px; 
+            color: #000; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .next-btn:hover { background: #ffb742; transform: translateY(-2px); }
+
+        /* --- MOBILE REWRITE (Fixed Width Issues) --- */
+        @media (max-width: 600px) {
+            body { overflow-y: auto; }
+            #slider-container { height: auto; min-height: 100vh; }
+            .slide { position: relative; height: auto; padding: 40px 0 100px 0; }
+            
+            .content-layer { 
+                flex-direction: column !important; 
+                align-items: center; 
+                width: 85%; /* Narrower width for mobile */
+                gap: 25px; 
+            }
+
+            .image-side { 
+                width: 280px; 
+                height: 420px; 
+                flex: none; 
+            }
+
+            .text-side { 
+                width: 100%; 
+                height: auto; 
+                text-align: center; 
+            }
+
+            h2 { font-size: 1.8rem; }
+            
+            .next-btn { 
+                position: relative; 
+                bottom: 0; 
+                right: auto; 
+                margin: 30px auto 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="slider-container"></div>
+
+<script>
+// Replace this array with your actual data from the spreadsheet
+const data = [
+    { title: "Clickbait Guide", bait: "These six hacks will change your life!", img: "https://via.placeholder.com/1200x800", layout: "hero" },
+    { title: "The Cliffhanger", desc: "This technique leaves out crucial information to force a click.", bait: "You won't believe what happened next!", real: "A cat sat on a fence.", img: "https://via.placeholder.com/400x600" }
+];
+
+let currentSlide = 0;
+
+function render(data) {
+    const container = document.getElementById('slider-container');
+    container.innerHTML = '';
+    
+    data.forEach((item, i) => {
+        const slide = document.createElement('div');
+        slide.className = `slide ${item.layout === 'hero' ? 'layout-hero' : 'layout-img-left'}`;
+        
+        if (i === 0) {
+            slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.img}')`;
+            slide.innerHTML = `
+                <div class="content-layer">
+                    <div class="hero-content">
+                        <h1>${item.title}</h1>
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.bait}"</p>
+                    </div>
+                    <button class="next-btn" onclick="nextSlide()">Start Guide</button>
+                </div>`;
+        } else {
+            slide.innerHTML = `
+                <div class="content-layer">
+                    <div class="image-side">
+                        <div class="img-fill" style="background-image: url('${item.img}')"></div>
+                    </div>
+                    <div class="text-side">
+                        <h2>${item.title}</h2>
+                        <p class="body-p">${item.desc}</p>
+                        <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
+                            <div class="flip-card">
+                                <div class="flip-front">
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Headline</div>
+                                    "${item.bait}"
+                                    <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal;">Click to reveal</div>
+                                </div>
+                                <div class="flip-back">
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Reality</div>
+                                    ${item.real}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="next-btn" onclick="nextSlide()">Next</button>
+                </div>`;
+        }
+        container.appendChild(slide);
+    });
+    showSlide(0);
+}
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+}
+
+function nextSlide() {
+    const slides = document.querySelectorAll('.slide');
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+}
+
+// Initialize
+render(data);
+</script>
+</body>
+</html>

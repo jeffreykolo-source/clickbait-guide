@@ -131,39 +131,46 @@ function render(data) {
     
     data.forEach((item, i) => {
         const slide = document.createElement('div');
+        
+        // 1. Check if it's the Hero slide based on your 'layout' column
         const isHero = i === 0 || (item.layout && item.layout.toLowerCase() === 'hero');
         slide.className = `slide ${isHero ? 'layout-hero' : 'layout-img-left'}`;
         
         if (isHero) {
-            slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.img}')`;
+            // Mapping: 'image_url' and 'caption'
+            slide.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${item.image_url}')`;
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="hero-content">
                         <h1>${item.title}</h1>
-                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">"${item.bait || ''}"</p>
+                        <p style="font-size: 1.4rem; color: var(--accent-orange); font-style: italic;">
+                            "${item.caption || ''}"
+                        </p>
                     </div>
                     <button class="next-btn" onclick="nextSlide()">Start Guide</button>
                 </div>`;
         } else {
+            // Mapping: 'image_url', 'description', 'caption' (bait), and 'quote' (reality)
             slide.innerHTML = `
                 <div class="content-layer">
                     <div class="image-side">
-                        <div class="img-fill" style="background-image: url('${item.img}')"></div>
+                        <div class="img-fill" style="background-image: url('${item.image_url}')"></div>
                     </div>
                     <div class="text-side">
                         <h2>${item.title}</h2>
-                        <p class="body-p">${item.desc}</p>
-                        ${item.real ? `
+                        <p class="body-p">${item.description || ''}</p>
+                        
+                        ${item.quote ? `
                         <div class="flip-container" onclick="this.querySelector('.flip-card').classList.toggle('revealed')">
                             <div class="flip-card">
                                 <div class="flip-front">
                                     <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Headline</div>
-                                    "${item.bait}"
+                                    "${item.caption || ''}"
                                     <div style="font-size: 0.7rem; margin-top: 10px; font-weight: normal;">Click to reveal</div>
                                 </div>
                                 <div class="flip-back">
                                     <div style="font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">The Reality</div>
-                                    ${item.real}
+                                    ${item.quote}
                                 </div>
                             </div>
                         </div>` : ''}

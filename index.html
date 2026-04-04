@@ -168,13 +168,37 @@
 <div id="slider-container"></div>
 
 <script>
-// Replace this array with your actual data from the spreadsheet
-const data = [
-    { title: "Clickbait Guide", bait: "These six hacks will change your life!", img: "https://via.placeholder.com/1200x800", layout: "hero" },
-    { title: "The Cliffhanger", desc: "This technique leaves out crucial information to force a click.", bait: "You won't believe what happened next!", real: "A cat sat on a fence.", img: "https://via.placeholder.com/400x600" }
-];
+// Replace this array with your actual data from the spreadsheetconst SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?gid=0&single=true&output=csv';
 
-let currentSlide = 0;
+let currentIndex = 0;
+
+async function loadData() {
+    try {
+        const response = await fetch(SHEET_URL);
+        const csvText = await response.text();
+        
+        // Improved CSV parsing to handle quotes and commas inside text
+        const rows = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
+        
+        const slideData = rows.slice(1).map(row => {
+            // Regex to split by comma but ignore commas inside double quotes
+            const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const clean = (val) => (val || "").replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+            
+            return { 
+                title: clean(p[0]), 
+                desc: clean(p[1]), 
+                img: clean(p[2]), 
+                layout: clean(p[3]),
+                bait: clean(p[4]), 
+                real: clean(p[5]) 
+            };
+        });
+
+        render(slideData);
+    } catch (e) { console.error("Error loading CSV:", e); }
+}
+
 
 function render(data) {
     const container = document.getElementById('slider-container');

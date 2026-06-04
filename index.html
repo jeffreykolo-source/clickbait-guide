@@ -172,12 +172,11 @@
 </div>
 
 <script>
-const spreadsheetUrl = 'YOUR_CSV_URL_HERE'; // Replace with your published CSV link
+const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0lbYPGDQoHbi7SKYJMpAaSwOkMUBMjlQ79IaQnieQi-SCQCycYJrsxtbfulq4odFFI_V1dwcF_kCB/pub?output=csv'; // Replace with your published CSV link
 
 let currentSlide = 0;
 let totalPresentationSlides = 0;
 let userScore = 0;
-let currentQuestionIndex = 0;
 
 // The 6 Quiz Questions based on your lesson categories
 const quizQuestions = [
@@ -200,7 +199,7 @@ const quizQuestions = [
         answer: 0 // Emotional Trigger Words
     },
     {
-        headline: "This Simple Routine Will Supercharge Your Focus Instantly.",
+        headline: "This One Exercise Will Supercharge Your Workouts Instantly.",
         question: "Which clickbait technique is being used here?",
         options: ["Lists", "The Curiosity Gap", "Exaggeration", "Vague Language"],
         answer: 3 // Vague Language
@@ -305,7 +304,6 @@ function render(data) {
         container.appendChild(slide);
     });
     
-    // Inject Quiz Slides dynamically directly behind presentation slides
     buildQuizSlides(container);
     showSlide(0);
 }
@@ -334,7 +332,7 @@ function buildQuizSlides(container) {
         container.appendChild(slide);
     });
 
-    // Add Final Report Card Slide
+    // Final Report Card Slide
     const reportSlide = document.createElement('div');
     reportSlide.className = "slide";
     reportSlide.id = `slide-${totalPresentationSlides + quizQuestions.length}`;
@@ -356,7 +354,6 @@ function checkAnswer(qIndex, selectedIndex, element) {
     const optionsBox = document.getElementById(`options-box-${qIndex}`);
     const options = optionsBox.getElementsByClassName('quiz-option');
     
-    // Disable further clicking on this question
     for(let opt of options) { opt.style.pointerEvents = 'none'; }
     
     if (selectedIndex === q.answer) {
@@ -364,10 +361,9 @@ function checkAnswer(qIndex, selectedIndex, element) {
         userScore++;
     } else {
         element.classList.add('wrong');
-        options[q.answer].classList.add('correct'); // Highlight correct answer
+        options[q.answer].classList.add('correct');
     }
     
-    // Show the next button
     document.getElementById(`quiz-next-${qIndex}`).style.display = 'block';
 }
 
@@ -395,13 +391,13 @@ function calculateRank() {
 }
 
 function showSlide(index) {
+    currentSlide = index; // Explicitly synchronize tracking pointer
     const slides = document.querySelectorAll('.slide');
     slides.forEach(s => s.classList.remove('active'));
     
     const targetSlide = document.getElementById(`slide-${index}`);
     if (targetSlide) {
         targetSlide.classList.add('active');
-        // If we reached the final report card slide, run the calculation
         if (index === totalPresentationSlides + quizQuestions.length) {
             calculateRank();
         }
@@ -409,22 +405,18 @@ function showSlide(index) {
 }
 
 function nextSlide() {
-    currentSlide++;
-    showSlide(currentSlide);
+    showSlide(currentSlide + 1);
 }
 
 function restartLesson() {
     userScore = 0;
-    currentSlide = 0;
     
-    // Reset all option elements to interactive state and clear colored classes
     const options = document.getElementsByClassName('quiz-option');
     for (let opt of options) {
         opt.classList.remove('correct', 'wrong');
         opt.style.pointerEvents = 'auto';
     }
     
-    // Hide all question next buttons again
     quizQuestions.forEach((_, qIndex) => {
         document.getElementById(`quiz-next-${qIndex}`).style.display = 'none';
     });
